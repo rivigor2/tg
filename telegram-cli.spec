@@ -6,7 +6,7 @@ Summary:	Private fast and open platform for instant messaging
 Packager: 	Pablo Iranzo Gómez (Pablo.Iranzo@gmail.com)
 Group:		Internet/Messaging
 License:	GPL
-URL:		https://github.com/vysheng/tg tdlib
+URL:		https://github.com/rivigor2/tg tdlib
 Source:		master.zip
 
 BuildRequires:	lua-devel, openssl-devel, libconfig-devel, readline-devel, wget
@@ -22,9 +22,9 @@ Telegram is an Open Source messaging platform for mobile, desktop focused on pri
 [ -d %{name} ] && rm -Rfv %{name}
 mkdir %{name}
 cd %{name}
-wget -O master.zip https://github.com/vysheng/tg/archive/master.zip
-unzip master.zip
-cd tg-master
+wget -O main.zip https://github.com/rivigor2/tg/archive/main.zip
+unzip main.zip
+cd tg-main
 ./configure
 make %{?_smp_mflags}
 
