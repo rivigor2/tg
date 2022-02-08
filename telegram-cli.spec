@@ -6,7 +6,7 @@ Summary:	Private fast and open platform for instant messaging
 Packager: 	Pablo Iranzo Gómez (Pablo.Iranzo@gmail.com)
 Group:		Internet/Messaging
 License:	GPL
-URL:		https://github.com/vysheng/tg
+URL:		https://github.com/vysheng/tg tdlib
 Source:		master.zip
 
 BuildRequires:	lua-devel, openssl-devel, libconfig-devel, readline-devel, wget
