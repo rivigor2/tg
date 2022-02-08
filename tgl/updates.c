@@ -187,7 +187,7 @@ void tglu_work_update (struct tgl_state *TLS, int check_only, struct tl_ds_updat
       //int new = (!N || !(N->flags & TGLMF_CREATED));
       int new_msg = 0;
       struct tgl_message *M = tglf_fetch_alloc_message (TLS, DS_U->message, &new_msg);
-      //assert (M);
+      assert (M);
       if (new_msg) {
         bl_do_msg_update (TLS, &M->permanent_id);
       }

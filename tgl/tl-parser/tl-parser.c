@@ -1591,7 +1591,7 @@ struct tl_combinator_tree *tl_parse_nat_const (struct tree *T, int s) {
   assert (T->type == type_nat_const);
   assert (!T->nc);
   if (s > 0) {
-    TL_ERROR ("Nat const can not preceed with %%\n");
+    TL_ERROR ("Nat const can not precede with %%\n");
     TL_FAIL;
   }
   assert (T->type == type_nat_const);
@@ -1619,7 +1619,7 @@ struct tl_combinator_tree *tl_parse_ident (struct tree *T, int s) {
     L->act = act_var;
     L->type = v->type ? type_num : type_type;
     if (L->type == type_num && s) {
-      TL_ERROR ("Nat var can not preceed with %%\n");
+      TL_ERROR ("Nat var can not precede with %%\n");
       TL_FAIL;
     } else {
       if (s) {
@@ -1900,12 +1900,11 @@ struct tl_combinator_tree *tl_parse_args134 (struct tree *T) {
       }
     }
     if (tt >= 0) {
-      //assert (S->data);
       char *name = S->data;
+      static char s[21];
       if (!name) {
-        static char s[20];
         sprintf (s, "%lld", lrand48 () * (1ll << 32) + lrand48 ());
-        name = s;
+        name = s;  // will be strdup'd, so reference-to-stack is fine.
       }
       struct tl_var *v = tl_add_var (name, S, tt);
       if (!v) {TL_FAIL;}
