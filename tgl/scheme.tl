@@ -173,6 +173,11 @@ auth.codeTypeSms#72a3158c = auth.CodeType;
 auth.codeTypeCall#741cd3e3 = auth.CodeType;
 auth.codeTypeFlashCall#226ccefb = auth.CodeType;
 
+auth.sentCodeTypeApp#3dbb5986 length:int = auth.SentCodeType;
+auth.sentCodeTypeSms#c000bba2 length:int = auth.SentCodeType;
+auth.sentCodeTypeCall#5353e5a7 length:int = auth.SentCodeType;
+auth.sentCodeTypeFlashCall#ab03c6d9 pattern:string = auth.SentCodeType;
+
 
 auth.sentCode#5e002502 flags:# phone_registered:flags.0?true type:auth.SentCodeType phone_code_hash:string next_type:flags.1?auth.CodeType timeout:flags.2?int = auth.SentCode;
 
