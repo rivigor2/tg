@@ -169,7 +169,10 @@ geoPoint#2049d70c longitude:double latitude:double = GeoPoint;
 
 auth.checkedPhone#811ea28e phone_registered:Bool = auth.CheckedPhone;
 
-auth.sentCode#efed51d9 phone_registered:Bool phone_code_hash:string send_call_timeout:int is_password:Bool = auth.SentCode;
+
+auth.sentCode#5e002502 flags:# phone_registered:flags.0?true type:auth.SentCodeType phone_code_hash:string next_type:flags.1?auth.CodeType timeout:flags.2?int = auth.SentCode;
+
+
 auth.sentAppCode#e325edcf phone_registered:Bool phone_code_hash:string send_call_timeout:int is_password:Bool = auth.SentCode;
 
 auth.authorization#ff036af1 user:User = auth.Authorization;
@@ -559,7 +562,8 @@ invokeWithLayer#da9b0d0d {X:Type} layer:int query:!X = X;
 invokeWithoutUpdates#bf9459b7 {X:Type} query:!X = X;
 
 auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
-auth.sendCode#a677244f phone_number:string api_id:int api_hash:string = auth.SentCode;
+
+auth.sendCode#86aef0ec flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool api_id:int api_hash:string = auth.SentCode;
 
 
 auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
