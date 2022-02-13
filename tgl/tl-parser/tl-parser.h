@@ -24,9 +24,6 @@
 
 #ifndef __TL_PARSER_NEW_H__
 #define __TL_PARSER_NEW_H__
-
-#include <stdio.h>
-
 enum lex_type {
   lex_error,
   lex_char, 
@@ -196,7 +193,7 @@ struct tree *tl_parse_lex (struct parse *P);
 void tl_print_parse_error (void);
 struct tl_program *tl_parse (struct tree *T);
 
-void write_types (FILE *f);
+void write_types (int f);
 
 #define FLAG_BARE 1
 #define FLAG_OPT_VAR (1 << 17)
@@ -205,19 +202,5 @@ void write_types (FILE *f);
 #define FLAG_IS_VAR (1 << 21)
 #define FLAG_DEFAULT_CONSTRUCTOR (1 << 25)
 #define FLAG_EMPTY (1 << 10)
-
-#ifdef NDEBUG
-#undef assert
-#define assert(x) if (!(x)) { fprintf(stderr, "Assertion error!\n"); abort(); }
-#endif
-
-#ifdef _WIN32
-#include "wgetopt.h"
-
-#define __attribute__(x)
-
-#define lrand48() rand()
-#define strdup _strdup
-#endif
 
 #endif

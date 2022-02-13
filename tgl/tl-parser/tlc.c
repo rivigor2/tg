@@ -22,21 +22,21 @@
 
 */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #include "tl-parser.h"
 
-#ifndef _WIN32
 #include <unistd.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
 #include <signal.h>
+#include "config.h"
 
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
@@ -56,10 +56,10 @@ void usage (void) {
 }
 
 int vkext_write (const char *filename) {
-  FILE *f = fopen(filename, "wb");
-  assert (f != NULL);
+  int f = open (filename, O_CREAT | O_WRONLY | O_TRUNC, 0640);
+  assert (f >= 0);
   write_types (f);
-  fclose (f);
+  close (f);
   return 0;
 }
 
@@ -85,14 +85,14 @@ void print_backtrace (void) {
 }
 #else
 void print_backtrace (void) {
-  if (fwrite ("No libexec. Backtrace disabled\n", 32, 1, stderr) != 1) {
+  if (write (1, "No libexec. Backtrace disabled\n", 32) < 0) {
     // Sad thing
   }
 }
 #endif
 
 void sig_segv_handler (int signum __attribute__ ((unused))) {
-  if (fwrite ("SIGSEGV received\n", 18, 1, stderr) != 1) {
+  if (write (1, "SIGSEGV received\n", 18) < 0) { 
     // Sad thing
   }
   print_backtrace ();
@@ -100,7 +100,7 @@ void sig_segv_handler (int signum __attribute__ ((unused))) {
 }
 
 void sig_abrt_handler (int signum __attribute__ ((unused))) {
-  if (fwrite ("SIGABRT received\n", 18, 1, stderr) != 1) {
+  if (write (1, "SIGABRT received\n", 18) < 0) { 
     // Sad thing
   }
   print_backtrace ();
@@ -136,13 +136,13 @@ int main (int argc, char **argv) {
 
   struct parse *P = tl_init_parse_file (argv[optind]);
   if (!P) {
-    return 1;
+    return 0;
   }
   struct tree *T;
   if (!(T = tl_parse_lex (P))) {
     fprintf (stderr, "Error in parse:\n");
     tl_print_parse_error ();
-    return 1;
+    return 0;
   } else {
     if (verbosity) {
       fprintf (stderr, "Parse ok\n");

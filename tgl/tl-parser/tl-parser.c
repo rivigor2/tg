@@ -23,21 +23,23 @@
 */
 
 #define _FILE_OFFSET_BITS 64
+#include "config.h"
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <time.h>
+#include <zlib.h>
 #include "portable_endian.h"
 #include "tl-parser-tree.h"
 #include "tl-parser.h"
-#include "crc32.h"
 #include "tl-tl.h"
+#include "config.h"
 
 extern int verbosity;
 extern int schema_version;
@@ -75,6 +77,8 @@ struct tree *tree_alloc (void) {
   memset (T, 0, sizeof (*T));
   return T;
 }
+
+#define CRC32_INITIAL crc32 (0, 0, 0)
 
 void tree_add_child (struct tree *P, struct tree *C) {
   if (P->nc == P->size) {
@@ -237,58 +241,8 @@ char *parse_lex (void) {
     parse.lex.len = 1;
     parse.lex.type = lex_char;   
     return (parse.lex.ptr = p);
-  case 'a':
-  case 'b':
-  case 'c':
-  case 'd':
-  case 'e':
-  case 'f':
-  case 'g':
-  case 'h':
-  case 'i':
-  case 'j':
-  case 'k':
-  case 'l':
-  case 'm':
-  case 'n':
-  case 'o':
-  case 'p':
-  case 'q':
-  case 'r':
-  case 's':
-  case 't':
-  case 'u':
-  case 'v':
-  case 'w':
-  case 'x':
-  case 'y':
-  case 'z':
-  case 'A':
-  case 'B':
-  case 'C':
-  case 'D':
-  case 'E':
-  case 'F':
-  case 'G':
-  case 'H':
-  case 'I':
-  case 'J':
-  case 'K':
-  case 'L':
-  case 'M':
-  case 'N':
-  case 'O':
-  case 'P':
-  case 'Q':
-  case 'R':
-  case 'S':
-  case 'T':
-  case 'U':
-  case 'V':
-  case 'W':
-  case 'X':
-  case 'Y':
-  case 'Z':
+  case 'a'...'z':
+  case 'A'...'Z':
     parse.lex.flags = 0;
     if (is_uletter (curch)) {
       while (is_ident_char (nextch ()));
@@ -311,7 +265,7 @@ char *parse_lex (void) {
       parse.lex.type = lex_lc_ident;
       return (parse.lex.ptr = p);
     }
-    while (curch == '.') {
+    if (curch == '.') {
       parse.lex.flags |= 1;
       nextch ();
       if (is_uletter (curch)) {
@@ -351,16 +305,7 @@ char *parse_lex (void) {
     parse.lex.len = parse.text + parse.pos - p;
     parse.lex.type = lex_lc_ident;
     return (parse.lex.ptr = p);
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
+  case '0'...'9':
     while (is_digit (nextch ()));
     parse.lex.len = parse.text + parse.pos - p;
     parse.lex.type = lex_num;
@@ -386,27 +331,22 @@ int expect (char *s) {
 }
 
 struct parse *tl_init_parse_file (const char *fname) {
-  FILE *f = fopen (fname, "rb");
-  if (f == NULL) {
-    fprintf (stderr, "Failed to open the input file.\n");
-    return NULL;
+  int fd = open (fname, O_RDONLY);
+  if (fd < 0) {
+    fprintf (stderr, "Error %m\n");
+    assert (0);
+    return 0;
   }
-  if (fseek (f, 0, SEEK_END) != 0) {
-    fprintf (stderr, "Can't seek to the end of the input file.\n");
-    return NULL;
+  long long size = lseek (fd, 0, SEEK_END);
+  if (size <= 0) {
+    fprintf (stderr, "size is %lld. Too small.\n", size);
+    return 0;
   }
-  long size = ftell (f);
-  if (size <= 0 || size > INT_MAX) {
-    fprintf (stderr, "Size is %ld. Too small or too big.\n", size);
-    return NULL;
-  }
-  fseek (f, 0, SEEK_SET);
-
   static struct parse save;
-  save.text = talloc ((size_t)size);
-  save.len = fread (save.text, 1, (size_t)size, f);
+  save.text = talloc (size);
+  lseek (fd, 0, SEEK_SET);
+  save.len = read (fd, save.text, size);
   assert (save.len == size);
-  fclose (f);
   save.pos = 0;
   save.line = 0;
   save.line_pos = 0;
@@ -1472,7 +1412,7 @@ int tl_count_combinator_name (struct tl_constructor *c) {
   tl_buf_add_tree (c->right, 1);
   //fprintf (stderr, "%.*s\n", buf_pos, buf);
   if (!c->name) {
-    c->name = compute_crc32 (buf, buf_pos);
+    c->name = crc32 (CRC32_INITIAL, (void *) buf, buf_pos);
   }
   return c->name;
 }
@@ -1490,7 +1430,7 @@ int tl_print_combinator (struct tl_constructor *c) {
     fprintf (stderr, "%.*s\n", buf_pos, buf);
   }
 /*  if (!c->name) {
-    c->name = compute_crc32 (buf, buf_pos);
+    c->name = crc32 (CRC32_INITIAL, (void *) bbuf, buf_pos);
   }*/
   return c->name;
 }
@@ -1651,7 +1591,7 @@ struct tl_combinator_tree *tl_parse_nat_const (struct tree *T, int s) {
   assert (T->type == type_nat_const);
   assert (!T->nc);
   if (s > 0) {
-    TL_ERROR ("Nat const can not preceed with %%\n");
+    TL_ERROR ("Nat const can not precede with %%\n");
     TL_FAIL;
   }
   assert (T->type == type_nat_const);
@@ -1679,7 +1619,7 @@ struct tl_combinator_tree *tl_parse_ident (struct tree *T, int s) {
     L->act = act_var;
     L->type = v->type ? type_num : type_type;
     if (L->type == type_num && s) {
-      TL_ERROR ("Nat var can not preceed with %%\n");
+      TL_ERROR ("Nat var can not precede with %%\n");
       TL_FAIL;
     } else {
       if (s) {
@@ -1960,12 +1900,11 @@ struct tl_combinator_tree *tl_parse_args134 (struct tree *T) {
       }
     }
     if (tt >= 0) {
-      //assert (S->data);
       char *name = S->data;
+      static char s[21];
       if (!name) {
-        static char s[20];
         sprintf (s, "%lld", lrand48 () * (1ll << 32) + lrand48 ());
-        name = s;
+        name = s;  // will be strdup'd, so reference-to-stack is fine.
       }
       struct tl_var *v = tl_add_var (name, S, tt);
       if (!v) {TL_FAIL;}
@@ -2505,8 +2444,6 @@ int tl_parse_builtin_combinator_decl (struct tree *T, int fun) {
   if ((!mystrcmp2 (T->c[0]->text, T->c[0]->len, "int") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "Int")) ||
       (!mystrcmp2 (T->c[0]->text, T->c[0]->len, "long") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "Long")) ||
       (!mystrcmp2 (T->c[0]->text, T->c[0]->len, "double") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "Double")) ||
-      (!mystrcmp2 (T->c[0]->text, T->c[0]->len, "object") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "Object")) ||
-      (!mystrcmp2 (T->c[0]->text, T->c[0]->len, "function") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "Function")) ||
       (!mystrcmp2 (T->c[0]->text, T->c[0]->len, "string") && !mystrcmp2 (T->c[1]->text, T->c[1]->len, "String"))) {
     struct tl_type *t = tl_add_type (T->c[1]->text, T->c[1]->len, 0, 0);
     if (!t) {
@@ -2784,17 +2721,17 @@ struct tl_program *tl_parse (struct tree *T) {
   return tl_program_cur;
 }
 
-FILE *__f;
+int __f;
 int num = 0;
 
 void wint (int a) {
 //  printf ("%d ", a);
   a = htole32 (a);
-  assert (fwrite (&a, 1, 4, __f) == 4);
+  assert (write (__f, &a, 4) == 4);
 }
 
 void wdata (const void *x, int len) {
-  assert (fwrite (x, 1, len, __f) == len);
+  assert (write (__f, x, len) == len);
 }
 
 void wstr (const char *s) {
@@ -2803,7 +2740,7 @@ void wstr (const char *s) {
     int x = strlen (s);
     if (x <= 254) {
       unsigned char x_c = (unsigned char)x;
-      assert (fwrite (&x_c, 1, 1, __f) == 1);
+      assert (write (__f, &x_c, 1) == 1);
     } else {
       fprintf (stderr, "String is too big...\n");
       assert (0);
@@ -2824,7 +2761,7 @@ void wstr (const char *s) {
 void wll (long long a) {
 //  printf ("%lld ", a);
   a = htole64 (a);
-  assert (fwrite (&a, 1, 8, __f) == 8);
+  assert (write (__f, &a, 8) == 8);
 }
 
 int count_list_size (struct tl_combinator_tree *T) {
@@ -3013,8 +2950,7 @@ void write_type (struct tl_type *t) {
 }
 
 int is_builtin_type (const char *id) {
-  return !strcmp (id, "int") || !strcmp (id, "long") || !strcmp (id, "double") || !strcmp (id, "string")
-    || !strcmp(id, "object") || !strcmp(id, "function");
+  return !strcmp (id, "int") || !strcmp (id, "long") || !strcmp (id, "double") || !strcmp (id, "string");
 }
 
 void write_combinator (struct tl_constructor *c) {
@@ -3058,7 +2994,7 @@ void write_type_constructors (struct tl_type *t) {
   }
 }
 
-void write_types (FILE *f) {
+void write_types (int f) {
   __f = f;
   wint (TLS_SCHEMA_V2);
   wint (0);
