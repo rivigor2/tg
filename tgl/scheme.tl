@@ -572,6 +572,7 @@ invokeWithoutUpdates#bf9459b7 {X:Type} query:!X = X;
 auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
 auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
 
+inputClientProxy#75588b3f address:string port:int = InputClientProxy;
 
 auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
 auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
