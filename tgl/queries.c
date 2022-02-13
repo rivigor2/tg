@@ -466,6 +466,10 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
       int *save = in_ptr;
       vlogprintf (E_DEBUG, "in_ptr = %p, end_ptr = %p\n", in_ptr, in_end);
       if (skip_type_any (q->type) < 0) {
+
+       vlogprintf (E_ERROR, "--%s---%s--%s-\n", q->type, q->methods->on_answer, id);
+
+
         vlogprintf (E_ERROR, "Skipped %ld int out of %ld (type %s) (query type %s)\n", (long)(in_ptr - save), (long)(in_end - save), q->type->type->id, q->methods->name);
         vlogprintf (E_ERROR, "0x%08x 0x%08x 0x%08x 0x%08x\n", *(save - 1), *(save), *(save + 1), *(save + 2));
       //  assert (0);
