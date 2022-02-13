@@ -169,19 +169,7 @@ geoPoint#2049d70c longitude:double latitude:double = GeoPoint;
 
 auth.checkedPhone#811ea28e phone_registered:Bool = auth.CheckedPhone;
 
-auth.codeTypeSms#72a3158c = auth.CodeType;
-auth.codeTypeCall#741cd3e3 = auth.CodeType;
-auth.codeTypeFlashCall#226ccefb = auth.CodeType;
-
-auth.sentCodeTypeApp#3dbb5986 length:int = auth.SentCodeType;
-auth.sentCodeTypeSms#c000bba2 length:int = auth.SentCodeType;
-auth.sentCodeTypeCall#5353e5a7 length:int = auth.SentCodeType;
-auth.sentCodeTypeFlashCall#ab03c6d9 pattern:string = auth.SentCodeType;
-
-
-auth.sentCode#5e002502 flags:# phone_registered:flags.0?true type:auth.SentCodeType phone_code_hash:string next_type:flags.1?auth.CodeType timeout:flags.2?int = auth.SentCode;
-
-
+auth.sentCode#efed51d9 phone_registered:Bool phone_code_hash:string send_call_timeout:int is_password:Bool = auth.SentCode;
 auth.sentAppCode#e325edcf phone_registered:Bool phone_code_hash:string send_call_timeout:int is_password:Bool = auth.SentCode;
 
 auth.authorization#ff036af1 user:User = auth.Authorization;
@@ -571,10 +559,7 @@ invokeWithLayer#da9b0d0d {X:Type} layer:int query:!X = X;
 invokeWithoutUpdates#bf9459b7 {X:Type} query:!X = X;
 
 auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
-
-auth.sendCode#86aef0ec flags:# allow_flashcall:flags.0?true phone_number:string current_number:flags.0?Bool api_id:int api_hash:string = auth.SentCode;
-
-
+auth.sendCode#768d5f4d phone_number:string sms_type:int api_id:int api_hash:string lang_code:string = auth.SentCode;
 auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
 auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
 auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
