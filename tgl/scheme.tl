@@ -558,11 +558,9 @@ initConnection#69796de9 {X:Type} api_id:int device_model:string system_version:s
 invokeWithLayer#da9b0d0d {X:Type} layer:int query:!X = X;
 invokeWithoutUpdates#bf9459b7 {X:Type} query:!X = X;
 
-
 auth.checkPhone#6fe51dfb phone_number:string = auth.CheckedPhone;
-auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
+auth.sendCode#a677244f phone_number:string api_id:int api_hash:string = auth.SentCode;
 
-codeSettings#debebe83 flags:# allow_flashcall:flags.0?true current_number:flags.1?true allow_app_hash:flags.4?true = CodeSettings;
 
 auth.sendCall#3c51564 phone_number:string phone_code_hash:string = Bool;
 auth.signUp#1b067634 phone_number:string phone_code_hash:string phone_code:string first_name:string last_name:string = auth.Authorization;
