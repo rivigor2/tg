@@ -169,6 +169,10 @@ geoPoint#2049d70c longitude:double latitude:double = GeoPoint;
 
 auth.checkedPhone#811ea28e phone_registered:Bool = auth.CheckedPhone;
 
+auth.codeTypeSms#72a3158c = auth.CodeType;
+auth.codeTypeCall#741cd3e3 = auth.CodeType;
+auth.codeTypeFlashCall#226ccefb = auth.CodeType;
+
 
 auth.sentCode#5e002502 flags:# phone_registered:flags.0?true type:auth.SentCodeType phone_code_hash:string next_type:flags.1?auth.CodeType timeout:flags.2?int = auth.SentCode;
 
