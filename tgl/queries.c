@@ -2822,7 +2822,7 @@ void tgl_do_channel_set_about (struct tgl_state *TLS, tgl_peer_id_t id, const ch
   out_int (tgl_get_peer_id (id));
   out_long (id.access_hash);
   out_cstring (about, about_len);
-  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &send_msgs_methods, 0, callback, callback_extra);
+  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &channels_set_about_methods, 0, callback, callback_extra);
 }
 /* }}} */
 
@@ -2835,7 +2835,7 @@ void tgl_do_channel_set_username (struct tgl_state *TLS, tgl_peer_id_t id, const
   out_int (tgl_get_peer_id (id));
   out_long (id.access_hash);
   out_cstring (username, username_len);
-  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &send_msgs_methods, 0, callback, callback_extra);
+  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &channels_set_about_methods, 0, callback, callback_extra);
 }
 /* }}} */
 
